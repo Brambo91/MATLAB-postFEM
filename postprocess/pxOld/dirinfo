@@ -1,0 +1,7 @@
+This folder contains the old version of px and pxthick which worked when data from all plies was written to 
+ - displacements.dat
+ - stress.dat
+ - elements.dat
+ - nodes.dat
+The output procedure was changed in November 2008, but I still have some old valuable data that was generated with the old version. 
+
