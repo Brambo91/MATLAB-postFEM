@@ -22,9 +22,14 @@ else
   prestring = [];
 end
 
+global fPath %Bram
+if( isempty(fPath) ) %Bram
+   fPath = './'; 
+end %Bram
+
 % loop over filenames with this extension
-str = ['!ls ' prestring '*.' extension '> tmp.findFile 2> /dev/null'];
-eval(str)
+str = ['!ls ' fPath prestring '*.' extension '> tmp.findFile 2> /dev/null'];
+eval(str) %Bram added fPath
 
 fi = fopen('tmp.findFile');
 

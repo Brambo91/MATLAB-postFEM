@@ -31,6 +31,7 @@ end
 
 global gcoords
 global gconn
+global Alphabet
 
 readMesh
 
@@ -64,7 +65,13 @@ catch ex
   rethrow(ex)
 end
 
-tmp = makePatch(coords,fulldata,gconn);
+if( isstruct(gconn) )
+    for i = 1:numel(fieldnames(gconn))
+        tmp = makePatch(coords,fulldata,gconn.(Alphabet(i)));
+    end
+else
+    tmp = makePatch(coords,fulldata,gconn);
+end
 
 if nargout > 0
   h = tmp;

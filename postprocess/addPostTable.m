@@ -24,13 +24,20 @@ if ( isempty(pxLW) )
   pxLW = .1;
 end
 
+global fPath %Bram
+
+if( isempty(fPath) ) %Bram
+   fPath = './'; 
+end %Bram
+
 %% initialize files
 
 global gcoords
 global gconn
 global gu
+global Alphabet
 
-tfile = 'xotable.dat';
+tfile = [fPath 'xotable.dat'];
 
 if ~exist(tfile,'file')
   disp([tfile ' has not been found. Is your path correct?'])
@@ -46,10 +53,12 @@ if ( isempty(skipMesh) || ~skipMesh )
 end
 
 rank = size(gcoords,2);
-u = zeros(length(gcoords),rank);
+u    = zeros(length(gcoords),rank);
 
-if ( exist('loadScale.dat','file') && ~isempty(it) )
-  load loadScale.dat
+fileLoadScale = [ fPath 'LoadScale.dat' ];
+
+if ( exist(fileLoadScale,'file') && ~isempty(it) )
+  load fileLoadScale
   if ( size(loadScale,1) >= it && size(loadScale,2)>=2  ...
                                && isfinite(loadScale(it,2)) )
     scaleAll = loadScale(it,2);
@@ -87,14 +96,14 @@ end
 u(dispUnsrt(1,:)+1,:) = dispUnsrt(2:end,:)';
 
 % eliminate interface elements (in 2D case)
-
-if ( size(gconn,2) == 4 )
-  compoundCondInd = ( gcoords(gconn(:,1),2)~=gcoords(gconn(:,3),2) ) ...
-                  | ( gcoords(gconn(:,1),1)~=gcoords(gconn(:,3),1) );
-  conn = gconn ( compoundCondInd, : );
-else
-  conn = gconn;
-end
+conn = gconn;
+% if ( size(gconn,2) == 4 )
+%   compoundCondInd = ( gcoords(gconn(:,1),2)~=gcoords(gconn(:,3),2) ) ...
+%                   | ( gcoords(gconn(:,1),1)~=gcoords(gconn(:,3),1) );
+%   conn = gconn ( compoundCondInd, : );
+% else
+%   conn = gconn;
+% end
 
 % find data in table file
 % NB: possibly not all nodes have values, particularly with multiple 
@@ -120,7 +129,13 @@ end
 gu = u(1:size(gcoords,1),:);
 coords = gcoords + scale * gu;
 
-tmp = makePatch(coords,fulldata,conn);
+if( isstruct(gconn) )
+    for i = 1:numel(fieldnames(gconn))
+        tmp = makePatch(coords,fulldata,gconn.(Alphabet(i)));
+    end
+else
+    tmp = makePatch(coords,fulldata,gconn);
+end
 
 if nargout > 0
   h = tmp;

@@ -14,7 +14,7 @@ else
   lw = pxLW;
 end
 
-nn = size(conn,2);
+nn   = size(conn,2);
 rank = size(coords,2);
 
 midnodes = ( nn == 6 && rank == 2 );
@@ -28,7 +28,7 @@ else
   v = 1:nn;
 end
 
-nel = size(conn,1);
+nel = size(conn,1); %conn = conn(1:244,1:4);
 x = reshape ( coords(conn,1), size(conn) );
 y = reshape ( coords(conn,2), size(conn) );
 c = reshape ( data(conn),     size(conn) );
