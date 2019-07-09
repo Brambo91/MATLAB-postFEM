@@ -35,7 +35,6 @@ end %Bram
 global gcoords
 global gconn
 global gu
-global Alphabet
 
 tfile = [fPath 'xotable.dat'];
 
@@ -129,13 +128,8 @@ end
 gu = u(1:size(gcoords,1),:);
 coords = gcoords + scale * gu;
 
-if( isstruct(gconn) )
-    for i = 1:numel(fieldnames(gconn))
-        tmp = makePatch(coords,fulldata,gconn.(Alphabet(i)));
-    end
-else
-    tmp = makePatch(coords,fulldata,gconn);
-end
+tmp = makePatch(coords,fulldata,gconn);
+
 
 if nargout > 0
   h = tmp;

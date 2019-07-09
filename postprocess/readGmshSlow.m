@@ -11,6 +11,7 @@ global gnn
 global gnel
 global gmshphys
 global lastMsh
+global interfaces %Bram
 
 if ( nargin < 1 )
   filename = findFile('msh');
@@ -61,6 +62,7 @@ gnel = str2num(fgetl(mfile));   % number of elements
 % read element connectivity 
 
 gconn = [];
+gNelI = []; %Bram
 
 for i = 1:gnel
 
@@ -74,6 +76,9 @@ for i = 1:gnel
   end
   while ( size(gconn,1) > 0 && size(gconn,2) < nword )
     gconn(:,end+1) = gconn(:,end);
+    if ( isempty(gNelI) && interfaces ) %Bram
+       gNelI = i; 
+    end %Bram
   end  
   
   gconn = [gconn;nums];
@@ -85,10 +90,35 @@ end
 gmshphys = gconn(:,iphysgroup);
 
 % exclude information on element type, physical surface, etc
-  
-gconn = gconn ( : , iconn0:end ); 
+nTags = gconn( gNelI, 3 ); %Bram  
+gconn = gconn ( :, 3+nTags+1:end );
+%gconn = gconn ( : , iconn0:end ); %Bram, commented
 
-if ( nword+1-iconn0 == 6 )
+%Reorder interface elements, Bram
+if( ~isempty(gNelI) && interfaces )
+    minDist = 1.0e10;
+    imin    = -1;
+    for in = 2:size(gconn,2)
+        dist = norm(gcoords(gconn(gNelI,1),:)-gcoords(gconn(gNelI,in)), 2);
+        if ( dist < minDist )
+            minDist = dist;
+            imin    = in;
+        end
+    end
+    switch imin
+        case 2
+            v = [ 4 1 2 3 ];
+        case 3
+            v = [ 1 2 4 3 ];
+        case 4
+            v = [ 1 2 3 4 ];
+    end
+    
+    gconn = [ gconn(1:gNelI-1,:); gconn(gNelI:end,v)];
+end
+
+%if ( nword+1-iconn0 == 6 ) %Bram, commented
+if ( size(gconn,2) == 6 ) %Bram
   % reorder for 6-node element
 
   v = [ 1 4 2 5 3 6 ];
